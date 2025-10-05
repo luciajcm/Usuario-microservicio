@@ -1,3 +1,4 @@
+# app/models.py
 from database import db
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
@@ -27,8 +28,8 @@ class PerfilUsuario(db.Model):
     __tablename__ = 'perfiles_usuario'
     
     id = db.Column(db.Integer, primary_key=True)
-    usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), unique=True, nullable=False)
-    tipo_usuario = db.Column(db.String(20), default='regular')
+    usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id', ondelete='CASCADE'), unique=True, nullable=False)
+    tipo_usuario = db.Column(db.String(20), default='regular')  # regular, estudiante, vip
     idioma = db.Column(db.String(10), default='es')
     tema_oscuro = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)

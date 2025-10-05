@@ -1,3 +1,4 @@
+# app/routers/auth.py
 from flask import Blueprint, request, jsonify
 from database import db
 from models import Usuario, PerfilUsuario
@@ -68,8 +69,10 @@ def login():
                 "user": {
                     "id": usuario.id,
                     "nombre": usuario.nombre,
+                    "apellidos": usuario.apellidos,
                     "login": usuario.login,
-                    "email": usuario.email
+                    "email": usuario.email,
+                    "tipo_usuario": usuario.perfil.tipo_usuario
                 }
             }), 200
 
