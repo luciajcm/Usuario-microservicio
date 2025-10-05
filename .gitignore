@@ -1,15 +1,13 @@
-# Ignore everything that is outside the immediate project folder (CC/Nuevo)
-# This addresses the files starting with ../../ or ../../../
-../../
+# Python
+__pycache__/
+*.pyc
+*.pyo
 
-# You might also want to ignore IDE/system files that often appear
-# at the project level, though they may be fixed by the line above.
+# SQLite
+*.db
+
+# Virtual env
+.venv/
+
+# VSCode config
 .vscode/
-
-# Ignore temporary system files (like the ones with a ~$ prefix)
-~$*
-
-# Ignore compiled files or executables if your project creates any
-*.exe
-*.dll
-*.o
