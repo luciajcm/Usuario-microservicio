@@ -1,9 +1,7 @@
 from flask import Flask
-from flask_jwt_extended import JWTManager
 from database import db
 from models import Usuario, PerfilUsuario
 import os
-from datetime import timedelta
 
 def create_app():
     app = Flask(__name__)
@@ -12,13 +10,8 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///./data/usuarios.db')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
-    # JWT Configuration
-    app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET', 'clave-secreta-produccion-2025')
-    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=24)
-    
     # Inicializar extensiones
     db.init_app(app)
-    jwt = JWTManager(app)
     
     # Crear tablas
     with app.app_context():
