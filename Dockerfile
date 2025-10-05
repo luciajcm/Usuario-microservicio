@@ -15,8 +15,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app/ ./app/
 
-# Crear directorio de datos y dar permisos al usuario appuser
-RUN mkdir -p /app/data && chown -R appuser:appuser /app/data
+# Crear directorios necesarios y dar permisos
+RUN mkdir -p /app/data /app/instance && \
+    chown -R appuser:appuser /app
 
 EXPOSE 5000
 
