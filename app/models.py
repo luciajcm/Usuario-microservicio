@@ -10,11 +10,11 @@ class Usuario(db.Model):
     apellidos = db.Column(db.String(100), nullable=False)
     login = db.Column(db.String(50), unique=True, nullable=False)
     email = db.Column(db.String(100), unique=True, nullable=False)
-    phone_number = db.Column(db.String(20))
+    phone_number = db.Column(db.String(20), nullable=True)
     password_hash = db.Column(db.String(255), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # Relación 1-a-1 con Perfil
+    # Relación con PerfilUsuario
     perfil = db.relationship('PerfilUsuario', backref='usuario', uselist=False, cascade='all, delete-orphan')
 
     def set_password(self, password):
@@ -22,17 +22,6 @@ class Usuario(db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
-
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'nombre': self.nombre,
-            'apellidos': self.apellidos,
-            'login': self.login,
-            'email': self.email,
-            'phone_number': self.phone_number,
-            'created_at': self.created_at.isoformat()
-        }
 
 class PerfilUsuario(db.Model):
     __tablename__ = 'perfiles_usuario'
@@ -43,10 +32,3 @@ class PerfilUsuario(db.Model):
     idioma = db.Column(db.String(10), default='es')
     tema_oscuro = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-    def to_dict(self):
-        return {
-            'tipo_usuario': self.tipo_usuario,
-            'idioma': self.idioma,
-            'tema_oscuro': self.tema_oscuro
-        }

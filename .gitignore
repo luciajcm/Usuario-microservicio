@@ -1,0 +1,53 @@
+# Virtual Environment
+.venv
+venv/
+env/
+
+# Docker
+docker-compose.override.yml
+
+# Database
+*.db
+*.sqlite3
+
+# Environment variables
+.env
+.env.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Ignore everything that is outside the immediate project folder (CC/Nuevo)
+# This addresses the files starting with ../../ or ../../../
+../../
+
+# You might also want to ignore IDE/system files that often appear
+# at the project level, though they may be fixed by the line above.
+.vscode/
+
+# Ignore temporary system files (like the ones with a ~$ prefix)
+~$*
+
+# Ignore compiled files or executables if your project creates any
+*.exe
+*.dll
+*.o
