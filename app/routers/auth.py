@@ -56,9 +56,14 @@ def login():
         data = request.get_json()
         
         if not data or not data.get('login') or not data.get('password'):
-            return jsonify({"error": "Login y password requeridos"}), 400
+            return jsonify({"error": "Login o email y password requeridos"}), 400
         
-        usuario = Usuario.query.filter_by(login=data['login']).first()
+        identifier = data['login']
+        
+        # Buscar por username O email
+        usuario = Usuario.query.filter(
+            (Usuario.login == identifier) | (Usuario.email == identifier)
+        ).first()
 
         if usuario and usuario.check_password(data['password']):
             token = create_jwt_token(usuario.id)
