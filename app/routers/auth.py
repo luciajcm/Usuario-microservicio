@@ -1,7 +1,6 @@
-# app/routers/auth.py
 from flask import Blueprint, request, jsonify
 from database import db
-from models import Usuario, PerfilUsuario
+from models import Usuario
 from auth_utils import create_jwt_token
 
 bp = Blueprint('auth', __name__)
@@ -14,31 +13,24 @@ def register():
         if not data:
             return jsonify({"error": "Datos JSON requeridos"}), 400
             
-        required_fields = ['nombre', 'apellidos', 'login', 'email', 'password']
+        required_fields = ['nombre', 'apellidos', 'email', 'password']
         for field in required_fields:
             if not data.get(field):
                 return jsonify({"error": f"Campo {field} es requerido"}), 400
         
-        if Usuario.query.filter_by(login=data['login']).first():
-            return jsonify({"error": "El nombre de usuario ya existe"}), 400
-        
+        # Solo verificar email (eliminado login)
         if Usuario.query.filter_by(email=data['email']).first():
             return jsonify({"error": "El email ya está registrado"}), 400
 
         usuario = Usuario(
             nombre=data['nombre'],
             apellidos=data['apellidos'],
-            login=data['login'],
             email=data['email'],
             phone_number=data.get('phone_number', '')
         )
         usuario.set_password(data['password'])
         
         db.session.add(usuario)
-        db.session.commit()
-
-        perfil = PerfilUsuario(usuario_id=usuario.id)
-        db.session.add(perfil)
         db.session.commit()
 
         return jsonify({
@@ -55,15 +47,12 @@ def login():
     try:
         data = request.get_json()
         
-        if not data or not data.get('login') or not data.get('password'):
-            return jsonify({"error": "Login o email y password requeridos"}), 400
+        # Cambiar 'login' por 'email'
+        if not data or not data.get('email') or not data.get('password'):
+            return jsonify({"error": "Email y password requeridos"}), 400
         
-        identifier = data['login']
-        
-        # Buscar por username O email
-        usuario = Usuario.query.filter(
-            (Usuario.login == identifier) | (Usuario.email == identifier)
-        ).first()
+        # Buscar solo por email
+        usuario = Usuario.query.filter_by(email=data['email']).first()
 
         if usuario and usuario.check_password(data['password']):
             token = create_jwt_token(usuario.id)
@@ -75,9 +64,8 @@ def login():
                     "id": usuario.id,
                     "nombre": usuario.nombre,
                     "apellidos": usuario.apellidos,
-                    "login": usuario.login,
                     "email": usuario.email,
-                    "tipo_usuario": usuario.perfil.tipo_usuario
+                    "phone_number": usuario.phone_number
                 }
             }), 200
 

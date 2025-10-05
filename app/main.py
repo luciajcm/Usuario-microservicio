@@ -1,7 +1,6 @@
-# app/main.py - VERSIÓN SIMPLE
 from flask import Flask
 from database import init_db, db
-from models import Usuario, PerfilUsuario
+from models import Usuario  # Eliminar PerfilUsuario
 
 def create_app():
     app = Flask(__name__)
@@ -9,12 +8,12 @@ def create_app():
     # Inicializar base de datos
     init_db(app)
     
-    # Crear tablas SIN manejo complejo de errores
+    # Crear tablas
     with app.app_context():
         db.create_all()
         print("✅ Tablas creadas exitosamente")
     
-    # Health check simple
+    # Health check
     @app.route('/health')
     def health():
         return {"status": "healthy", "service": "usuarios"}

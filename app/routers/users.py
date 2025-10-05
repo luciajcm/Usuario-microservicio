@@ -1,5 +1,4 @@
-# app/routers/users.py
-from flask import Blueprint, jsonify, request  # ← AGREGAR request aquí
+from flask import Blueprint, jsonify, request
 from database import db
 from models import Usuario
 from auth_utils import token_required
@@ -17,10 +16,8 @@ def profile(user_id):
                 "id": usuario.id,
                 "nombre": usuario.nombre,
                 "apellidos": usuario.apellidos,
-                "login": usuario.login,
                 "email": usuario.email,
-                "phone_number": usuario.phone_number,
-                "tipo_usuario": usuario.perfil.tipo_usuario
+                "phone_number": usuario.phone_number
             }), 200
         
         return jsonify({"error": "Usuario no encontrado"}), 404
@@ -35,28 +32,65 @@ def list_users():
         "id": u.id,
         "nombre": u.nombre,
         "apellidos": u.apellidos,
-        "login": u.login,
         "email": u.email,
-        "tipo_usuario": u.perfil.tipo_usuario
+        "phone_number": u.phone_number
     } for u in usuarios]), 200
 
-@bp.route('/profile/tipo', methods=['PUT'])
+@bp.route('/profile', methods=['PUT'])
 @token_required
-def update_tipo_usuario(user_id):
+def update_profile(user_id):
     try:
         data = request.get_json()
-        nuevo_tipo = data.get('tipo_usuario')
-        
-        if nuevo_tipo not in ['regular', 'estudiante', 'vip']:
-            return jsonify({"error": "Tipo de usuario inválido"}), 400
-        
         usuario = Usuario.query.get(user_id)
-        if usuario:
-            usuario.perfil.tipo_usuario = nuevo_tipo
-            db.session.commit()
-            return jsonify({"message": "Tipo de usuario actualizado"}), 200
         
-        return jsonify({"error": "Usuario no encontrado"}), 404
+        if not usuario:
+            return jsonify({"error": "Usuario no encontrado"}), 404
+        
+        # Campos que se pueden actualizar
+        if 'nombre' in data:
+            usuario.nombre = data['nombre']
+        if 'apellidos' in data:
+            usuario.apellidos = data['apellidos']
+        if 'phone_number' in data:
+            usuario.phone_number = data['phone_number']
+        
+        db.session.commit()
+        
+        return jsonify({
+            "message": "Perfil actualizado exitosamente",
+            "user": {
+                "id": usuario.id,
+                "nombre": usuario.nombre,
+                "apellidos": usuario.apellidos,
+                "email": usuario.email,
+                "phone_number": usuario.phone_number
+            }
+        }), 200
         
     except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": f"Error: {str(e)}"}), 500
+
+@bp.route('/profile/password', methods=['PUT'])
+@token_required
+def update_password(user_id):
+    try:
+        data = request.get_json()
+        usuario = Usuario.query.get(user_id)
+        
+        if not usuario:
+            return jsonify({"error": "Usuario no encontrado"}), 404
+        
+        # Verificar password actual
+        if not usuario.check_password(data.get('current_password')):
+            return jsonify({"error": "Password actual incorrecto"}), 400
+        
+        # Actualizar nuevo password
+        usuario.set_password(data['new_password'])
+        db.session.commit()
+        
+        return jsonify({"message": "Password actualizado exitosamente"}), 200
+        
+    except Exception as e:
+        db.session.rollback()
         return jsonify({"error": f"Error: {str(e)}"}), 500
