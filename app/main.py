@@ -1,32 +1,24 @@
 from flask import Flask
 from database import init_db, db
+from models import Usuario
 
 def create_app():
     app = Flask(__name__)
-    
     init_db(app)
     
     with app.app_context():
         try:
-            # Forzar creación de tablas
             db.create_all()
             print("✅ Tablas creadas exitosamente en MySQL")
             
             # Verificar que la tabla existe
-            from sqlalchemy import text
-            result = db.session.execute(text("SHOW TABLES"))
-            tables = [row[0] for row in result]
-            print(f"✅ Tablas en la base de datos: {tables}")
+            from sqlalchemy import inspect
+            inspector = inspect(db.engine)
+            tablas = inspector.get_table_names()
+            print(f"✅ Tablas en la base de datos: {tablas}")
             
         except Exception as e:
             print(f"❌ Error creando tablas: {e}")
-            # Intentar recrear desde cero
-            try:
-                db.drop_all()
-                db.create_all()
-                print("✅ Tablas recreadas exitosamente")
-            except Exception as e2:
-                print(f"❌ Error crítico: {e2}")
     
     @app.route('/health')
     def health():
