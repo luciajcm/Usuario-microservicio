@@ -4,7 +4,8 @@ WORKDIR /app
 
 RUN apt-get update && apt-get install -y \
     gcc \
-    sqlite3 \
+    default-libmysqlclient-dev \
+    pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
 # Crear usuario con UID 1000 para que coincida con tu usuario en la VM
@@ -17,13 +18,14 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY app/ ./app/
 
 # Crear directorios necesarios
-RUN mkdir -p /app/data /app/instance && \
+RUN mkdir -p /app && \
     chown -R appuser:appuser /app
 
 EXPOSE 5000
 
-# Usar ruta ABSOLUTA para la base de datos (nota las 4 barras)
-ENV DATABASE_URL=sqlite:////app/data/usuarios.db
+# Valores por defecto (serán sobrescritos por .env)
+ENV DATABASE_URL=mysql+pymysql://default:default@localhost:3306/default_db
+ENV JWT_SECRET=default-secret-change-in-production
 
 # Cambiar al usuario no-root
 USER appuser
