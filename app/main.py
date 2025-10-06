@@ -1,14 +1,11 @@
 from flask import Flask
 from database import init_db, db
-from models import Usuario
 
 def create_app():
     app = Flask(__name__)
     
-    # Inicializar base de datos
     init_db(app)
     
-    # Crear tablas
     with app.app_context():
         try:
             db.create_all()
@@ -16,12 +13,10 @@ def create_app():
         except Exception as e:
             print(f"❌ Error creando tablas: {e}")
     
-    # Health check
     @app.route('/health')
     def health():
         return {"status": "healthy", "service": "usuarios", "database": "MySQL"}
     
-    # Importar y registrar rutas
     from routers import auth, users
     app.register_blueprint(auth.bp, url_prefix='/auth')
     app.register_blueprint(users.bp, url_prefix='/users')
